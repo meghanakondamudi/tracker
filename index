@@ -1,1 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Life Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0f13;
+  --surface:#16181f;
+  --surface2:#1e2029;
+  --surface3:#252832;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+  --text:#e8e6e0;
+  --text2:#9896a0;
+  --text3:#5c5b65;
+  --accent:#c9a96e;
+  --accent2:#e8d5a8;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --r:10px;
+  --r2:16px;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;display:flex}
 
+/* SIDEBAR */
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo h1{font-family:var(--serif);font-size:20px;font-weight:500;color:var(--accent2);letter-spacing:0.02em}
+.sidebar-logo p{font-size:11px;color:var(--text3);margin-top:3px;letter-spacing:0.05em;text-transform:uppercase}
+.sidebar-section{padding:16px 12px 4px;font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;font-weight:500}
+.sidebar-nav{flex:1;overflow-y:auto;padding:0 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.15s;margin-bottom:2px;user-select:none}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--surface3);color:var(--text);font-weight:500}
+.nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nav-count{margin-left:auto;font-size:10px;color:var(--text3);background:var(--surface3);padding:1px 6px;border-radius:20px}
+.nav-icon{font-size:14px;width:16px;text-align:center}
+.sidebar-bottom{padding:12px 8px;border-top:1px solid var(--border)}
+.sidebar-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;background:transparent;border:0.5px solid var(--border2);border-radius:var(--r);color:var(--text2);cursor:pointer;font-family:var(--sans);font-size:12px;transition:all 0.15s}
+.sidebar-btn:hover{background:var(--surface2);color:var(--text)}
+.sidebar-btn+.sidebar-btn{margin-top:6px}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.topbar-title{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--text);flex:1}
+.period-tabs{display:flex;gap:4px;background:var(--surface2);border-radius:var(--r);padding:3px}
+.period-tab{padding:5px 14px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--text2);transition:all 0.15s;font-weight:400;border:none;background:transparent;font-family:var(--sans)}
+.period-tab.active{background:var(--surface3);color:var(--text);font-weight:500}
+.nav-arrow{background:var(--surface2);border:0.5px solid var(--border2);color:var(--text2);width:28px;height:28px;border-radius:var(--r);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0}
+.nav-arrow:hover{background:var(--surface3);color:var(--text)}
+.period-label{font-size:13px;color:var(--accent);font-weight:500;min-width:100px;text-align:center}
+.add-btn{display:flex;align-items:center;gap:6px;padding:7px 16px;background:var(--accent);color:#1a1508;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;transition:all 0.15s;flex-shrink:0}
+.add-btn:hover{background:var(--accent2)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+
+/* YEAR VIEW */
+.year-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.quarter-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;cursor:pointer;transition:all 0.2s}
+.quarter-block:hover{border-color:var(--border2);background:var(--surface2)}
+.quarter-block h3{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--accent2);margin-bottom:8px}
+.quarter-block p{font-size:11px;color:var(--text3);margin-bottom:12px}
+.q-bar-wrap{display:flex;flex-direction:column;gap:5px}
+.q-bar-item{display:flex;align-items:center;gap:8px}
+.q-bar-label{font-size:10px;color:var(--text3);width:20px}
+.q-bar{flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.q-bar-fill{height:100%;border-radius:2px;transition:width 0.5s}
+
+/* QUARTER / MONTH VIEW */
+.month-columns{display:grid;gap:16px}
+.month-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.month-col-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.month-col-header h3{font-family:var(--serif);font-size:14px;font-weight:500;color:var(--accent2)}
+.month-col-header span{font-size:11px;color:var(--text3)}
+.entries-list{padding:8px}
+
+/* ENTRY CARD */
+.entry-card{padding:12px;border-radius:var(--r);margin-bottom:4px;cursor:pointer;transition:background 0.15s;position:relative}
+.entry-card:hover{background:var(--surface2)}
+.entry-card:hover .entry-actions{opacity:1}
+.entry-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.area-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;letter-spacing:0.03em}
+.entry-date{font-size:11px;color:var(--text3)}
+.entry-type-badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.entry-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.4}
+.entry-body{font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.entry-body.expanded{-webkit-line-clamp:unset}
+.entry-actions{position:absolute;top:10px;right:10px;display:flex;gap:4px;opacity:0;transition:opacity 0.15s}
+.entry-action-btn{background:var(--surface3);border:none;color:var(--text2);width:24px;height:24px;border-radius:6px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.entry-action-btn:hover{background:var(--border2);color:var(--text)}
+.todo-check{display:flex;align-items:center;gap:8px;margin-top:6px}
+.todo-checkbox{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--border2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.todo-checkbox.done{border-color:transparent}
+.todo-checkbox.done::after{content:'✓';font-size:9px;color:#fff}
+.todo-text{font-size:12px;color:var(--text2)}
+.todo-text.done{text-decoration:line-through;color:var(--text3)}
+
+/* AREA FILTER BAR */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.filter-chip{display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--border);color:var(--text2);background:transparent;transition:all 0.15s;font-family:var(--sans)}
+.filter-chip:hover{border-color:var(--border2);color:var(--text)}
+.filter-chip.active{border-color:var(--border2);background:var(--surface2);color:var(--text)}
+.filter-chip .fdot{width:6px;height:6px;border-radius:50%}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 24px;color:var(--text3)}
+.empty-state p{font-size:13px;margin-top:8px}
+.empty-icon{font-size:32px;margin-bottom:12px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;padding:28px}
+.modal h2{font-family:var(--serif);font-size:20px;font-weight:500;color:var(--accent2);margin-bottom:20px}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;font-weight:500}
+.form-row input,.form-row textarea,.form-row select{width:100%;background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--r);color:var(--text);padding:9px 12px;font-family:var(--sans);font-size:13px;outline:none;transition:border-color 0.15s;resize:vertical}
+.form-row input:focus,.form-row textarea:focus,.form-row select:focus{border-color:var(--accent)}
+.form-row textarea{min-height:100px;line-height:1.6}
+.form-row select option{background:var(--surface2)}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.btn-ghost{padding:8px 20px;background:transparent;border:0.5px solid var(--border2);border-radius:var(--r);color:var(--text2);cursor:pointer;font-family:var(--sans);font-size:13px;transition:all 0.15s}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-primary{padding:8px 20px;background:var(--accent);border:none;border-radius:var(--r);color:#1a1508;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;transition:all 0.15s}
+.btn-primary:hover{background:var(--accent2)}
+.type-toggle{display:flex;gap:8px}
+.type-opt{flex:1;text-align:center;padding:8px;border-radius:var(--r);border:0.5px solid var(--border2);cursor:pointer;font-size:12px;color:var(--text2);transition:all 0.15s;background:transparent;font-family:var(--sans)}
+.type-opt.selected{border-color:var(--accent);background:rgba(201,169,110,0.1);color:var(--accent)}
+
+/* STATS STRIP */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-cell{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.stat-cell .s-label{font-size:10px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+.stat-cell .s-val{font-size:22px;font-weight:500;color:var(--text);font-family:var(--serif)}
+.stat-cell .s-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--r);padding:10px 16px;font-size:13px;color:var(--text);z-index:200;transform:translateY(80px);transition:transform 0.3s;pointer-events:none}
+.toast.show{transform:translateY(0)}
+
+@media(max-width:700px){
+  .sidebar{display:none}
+  .year-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-strip{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Life Tracker</h1>
+    <p>Your personal journal</p>
+  </div>
+  <div class="sidebar-nav">
+    <div class="sidebar-section">Views</div>
+    <div class="nav-item active" onclick="setView('all')" id="nav-all">
+      <span class="nav-icon">◈</span> All entries
+    </div>
+    <div class="sidebar-section" style="margin-top:8px">Life areas</div>
+    <div id="area-nav"></div>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="sidebar-btn" onclick="exportCSV()">↓ Export to CSV</button>
+    <button class="sidebar-btn" onclick="document.getElementById('csv-import').click()">↑ Import CSV</button>
+    <input type="file" id="csv-import" accept=".csv" style="display:none" onchange="importCSV(event)"/>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="view-title">All Entries</div>
+    <div class="period-tabs">
+      <button class="period-tab active" onclick="setPeriodView('year')">Year</button>
+      <button class="period-tab" onclick="setPeriodView('quarter')">Quarter</button>
+      <button class="period-tab" onclick="setPeriodView('month')">Month</button>
+    </div>
+    <button class="nav-arrow" onclick="navigatePeriod(-1)">&#8592;</button>
+    <div class="period-label" id="period-label"></div>
+    <button class="nav-arrow" onclick="navigatePeriod(1)">&#8594;</button>
+    <button class="add-btn" onclick="openAddModal()">+ Add entry</button>
+  </div>
+  <div class="content" id="main-content"></div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <h2 id="modal-title">New entry</h2>
+    <div class="form-row">
+      <label>Type</label>
+      <div class="type-toggle">
+        <button class="type-opt selected" id="type-note" onclick="selectType('note')">📝 Note</button>
+        <button class="type-opt" id="type-todo" onclick="selectType('todo')">✓ To-do</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Life area</label>
+      <select id="f-area"></select>
+    </div>
+    <div class="form-row">
+      <label>Title</label>
+      <input type="text" id="f-title" placeholder="What's this about?"/>
+    </div>
+    <div class="form-row">
+      <label id="f-body-label">Notes</label>
+      <textarea id="f-body" placeholder="Write anything — what you did, how it felt, what you're planning..."></textarea>
+    </div>
+    <div class="form-row">
+      <label>Date</label>
+      <input type="date" id="f-date"/>
+    </div>
+    <div class="form-actions">
+      <button class="btn-ghost" onclick="closeAllModals()">Cancel</button>
+      <button class="btn-primary" onclick="saveEntry()">Save entry</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const AREAS = [
+  {id:'career',   name:'Career',        icon:'💼', color:'#4F7FE8', bg:'rgba(79,127,232,0.15)'},
+  {id:'health',   name:'Health',        icon:'🏃', color:'#2A9D5C', bg:'rgba(42,157,92,0.15)'},
+  {id:'relations',name:'Social life', icon:'🤝', color:'#C2556A', bg:'rgba(194,85,106,0.15)'},
+  {id:'learning', name:'Learning',      icon:'📚', color:'#7A5CDA', bg:'rgba(122,92,218,0.15)'},
+  {id:'finance',  name:'Finance',       icon:'💰', color:'#C88A18', bg:'rgba(200,138,24,0.15)'},
+  {id:'mindset',  name:'Mindset',       icon:'🧠', color:'#3D9BAF', bg:'rgba(61,155,175,0.15)'},
+];
+
+let entries = JSON.parse(localStorage.getItem('lt_entries') || '[]');
+let currentView = 'all';
+let currentPeriodView = 'year';
+let currentYear = new Date().getFullYear();
+let currentQuarter = Math.floor(new Date().getMonth() / 3) + 1;
+let currentMonth = new Date().getMonth();
+let activeArea = null;
+let editingId = null;
+let selectedType = 'note';
+let filterAreas = new Set(AREAS.map(a => a.id));
+
+function save() { localStorage.setItem('lt_entries', JSON.stringify(entries)); }
+
+// ─── ROUTING ─────────────────────────────────────────────────────────────────
+function setView(v, areaId) {
+  currentView = v;
+  activeArea = areaId || null;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-' + (areaId || 'all')).classList.add('active');
+  renderAll();
+}
+
+function setPeriodView(v) {
+  currentPeriodView = v;
+  document.querySelectorAll('.period-tab').forEach(el => el.classList.remove('active'));
+  event.target.classList.add('active');
+  renderAll();
+}
+
+function navigatePeriod(dir) {
+  if (currentPeriodView === 'year') currentYear += dir;
+  else if (currentPeriodView === 'quarter') {
+    currentQuarter += dir;
+    if (currentQuarter > 4) { currentQuarter = 1; currentYear++; }
+    if (currentQuarter < 1) { currentQuarter = 4; currentYear--; }
+  } else {
+    currentMonth += dir;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  }
+  renderAll();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function renderAll() {
+  renderSidebar();
+  renderPeriodLabel();
+  renderContent();
+}
+
+function renderSidebar() {
+  const nav = document.getElementById('area-nav');
+  nav.innerHTML = AREAS.map(a => {
+    const cnt = entries.filter(e => e.area === a.id).length;
+    return `<div class="nav-item" id="nav-${a.id}" onclick="setView('area','${a.id}')" ${activeArea===a.id?'style="background:var(--surface3);color:var(--text);font-weight:500"':''}>
+      <div class="nav-dot" style="background:${a.color}"></div>
+      <span>${a.name}</span>
+      ${cnt ? `<span class="nav-count">${cnt}</span>` : ''}
+    </div>`;
+  }).join('');
+  if (activeArea) {
+    const el = document.getElementById('nav-'+activeArea);
+    if (el) { el.style.background='var(--surface3)'; el.style.color='var(--text)'; el.style.fontWeight='500'; }
+  }
+}
+
+function renderPeriodLabel() {
+  const lbl = document.getElementById('period-label');
+  if (currentPeriodView === 'year') lbl.textContent = currentYear;
+  else if (currentPeriodView === 'quarter') lbl.textContent = `Q${currentQuarter} ${currentYear}`;
+  else lbl.textContent = `${MONTHS_SHORT[currentMonth]} ${currentYear}`;
+
+  const area = activeArea ? AREAS.find(a=>a.id===activeArea) : null;
+  document.getElementById('view-title').textContent = area ? area.icon+' '+area.name : 'All Entries';
+}
+
+function getFilteredEntries() {
+  let pool = activeArea ? entries.filter(e=>e.area===activeArea) : entries.filter(e=>filterAreas.has(e.area));
+  if (currentPeriodView === 'year') pool = pool.filter(e => new Date(e.date).getFullYear() === currentYear);
+  else if (currentPeriodView === 'quarter') {
+    pool = pool.filter(e => {
+      const d = new Date(e.date);
+      return d.getFullYear()===currentYear && Math.floor(d.getMonth()/3)+1===currentQuarter;
+    });
+  } else {
+    pool = pool.filter(e => {
+      const d = new Date(e.date);
+      return d.getFullYear()===currentYear && d.getMonth()===currentMonth;
+    });
+  }
+  return pool.sort((a,b) => new Date(b.date)-new Date(a.date));
+}
+
+function renderContent() {
+  const el = document.getElementById('main-content');
+  const pool = getFilteredEntries();
+
+  // Stats
+  const notes = pool.filter(e=>e.type==='note').length;
+  const todos = pool.filter(e=>e.type==='todo').length;
+  const done = pool.filter(e=>e.type==='todo'&&e.done).length;
+  const pct = todos ? Math.round(done/todos*100) : 0;
+  const statsHtml = `<div class="stats-strip">
+    <div class="stat-cell"><div class="s-label">Entries</div><div class="s-val">${pool.length}</div><div class="s-sub">this period</div></div>
+    <div class="stat-cell"><div class="s-label">Notes</div><div class="s-val">${notes}</div><div class="s-sub">journal entries</div></div>
+    <div class="stat-cell"><div class="s-label">To-dos</div><div class="s-val">${todos}</div><div class="s-sub">${done} completed</div></div>
+    <div class="stat-cell"><div class="s-label">Progress</div><div class="s-val">${pct}%</div><div class="s-sub">tasks done</div></div>
+  </div>`;
+
+  if (currentPeriodView === 'year') { el.innerHTML = statsHtml + renderYearView(pool); return; }
+  if (currentPeriodView === 'quarter') { el.innerHTML = statsHtml + renderQuarterView(pool); return; }
+  el.innerHTML = statsHtml + renderMonthView(pool, currentMonth);
+}
+
+function renderYearView(pool) {
+  const quarters = [1,2,3,4].map(q => {
+    const qPool = pool.filter(e => Math.floor(new Date(e.date).getMonth()/3)+1===q);
+    const qNames = ['Jan–Mar','Apr–Jun','Jul–Sep','Oct–Dec'];
+    const areaBars = AREAS.map(a => {
+      const cnt = qPool.filter(e=>e.area===a.id).length;
+      const max = Math.max(1, ...AREAS.map(ax => qPool.filter(e=>e.area===ax.id).length));
+      const pct = Math.round(cnt/max*100);
+      return `<div class="q-bar-item"><div class="q-bar-label" title="${a.name}">${a.icon}</div><div class="q-bar"><div class="q-bar-fill" style="width:${pct}%;background:${a.color}"></div></div><span style="font-size:10px;color:var(--text3);min-width:18px;text-align:right">${cnt}</span></div>`;
+    }).join('');
+    return `<div class="quarter-block" onclick="jumpToQuarter(${q})">
+      <h3>Q${q}</h3>
+      <p style="font-size:11px;color:var(--text3)">${qNames[q-1]} · ${qPool.length} entries</p>
+      <div class="q-bar-wrap">${areaBars}</div>
+    </div>`;
+  });
+
+  const filterBar = renderFilterBar();
+  const entries_html = renderEntriesFlat(pool.slice(0,20));
+  return `<div class="year-grid">${quarters.join('')}</div>${filterBar}<div id="entries-flat">${entries_html}</div>`;
+}
+
+function renderQuarterView(pool) {
+  const qStart = (currentQuarter-1)*3;
+  const cols = [0,1,2].map(i => {
+    const mIdx = qStart + i;
+    const mPool = pool.filter(e => new Date(e.date).getMonth()===mIdx);
+    const entries_html = mPool.length ? mPool.map(renderEntryCard).join('') : `<div class="empty-state"><div class="empty-icon">○</div><p>Nothing here yet</p></div>`;
+    return `<div class="month-col">
+      <div class="month-col-header"><h3>${MONTHS[mIdx]}</h3><span>${mPool.length} entries</span></div>
+      <div class="entries-list">${entries_html}</div>
+    </div>`;
+  }).join('');
+  return `<div class="month-columns" style="grid-template-columns:repeat(3,1fr)">${cols}</div>`;
+}
+
+function renderMonthView(pool, mIdx) {
+  const filterBar = renderFilterBar();
+  const entries_html = renderEntriesFlat(pool);
+  return `${filterBar}<div id="entries-flat">${entries_html}</div>`;
+}
+
+function renderFilterBar() {
+  const chips = AREAS.map(a => {
+    const on = filterAreas.has(a.id);
+    return `<button class="filter-chip ${on?'active':''}" onclick="toggleAreaFilter('${a.id}')">
+      <span class="fdot" style="background:${a.color}"></span>${a.name}
+    </button>`;
+  }).join('');
+  return `<div class="filter-bar">${chips}</div>`;
+}
+
+function renderEntriesFlat(pool) {
+  if (!pool.length) return `<div class="empty-state"><div class="empty-icon">✦</div><p>No entries for this period.<br>Click <strong>+ Add entry</strong> to get started.</p></div>`;
+  return pool.map(renderEntryCard).join('');
+}
+
+function renderEntryCard(e) {
+  const area = AREAS.find(a=>a.id===e.area) || AREAS[0];
+  const d = new Date(e.date);
+  const dateStr = `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+  const typeBadge = e.type==='todo'
+    ? `<span class="entry-type-badge" style="background:rgba(201,169,110,0.12);color:var(--accent)">${e.done?'✓ Done':'◻ To-do'}</span>`
+    : '';
+  const todoCheck = e.type==='todo' ? `<div class="todo-check">
+    <div class="todo-checkbox ${e.done?'done':''}" style="${e.done?'background:'+area.color+';':''}" onclick="toggleTodo(event,'${e.id}')"></div>
+    <span class="todo-text ${e.done?'done':''}">${e.done?'Completed':'Mark as done'}</span>
+  </div>` : '';
+  return `<div class="entry-card" onclick="expandEntry(event,'${e.id}')">
+    <div class="entry-meta">
+      <span class="area-badge" style="background:${area.bg};color:${area.color}">${area.icon} ${area.name}</span>
+      <span class="entry-date">${dateStr}</span>
+      ${typeBadge}
+    </div>
+    <div class="entry-title">${escHtml(e.title)}</div>
+    ${e.body ? `<div class="entry-body" id="body-${e.id}">${escHtml(e.body)}</div>` : ''}
+    ${todoCheck}
+    <div class="entry-actions">
+      <button class="entry-action-btn" onclick="openEditModal(event,'${e.id}')" title="Edit">✎</button>
+      <button class="entry-action-btn" onclick="deleteEntry(event,'${e.id}')" title="Delete">✕</button>
+    </div>
+  </div>`;
+}
+
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ─── INTERACTIONS ─────────────────────────────────────────────────────────────
+function toggleAreaFilter(id) {
+  if (filterAreas.has(id)) { filterAreas.delete(id); } else { filterAreas.add(id); }
+  renderContent();
+}
+
+function expandEntry(ev, id) {
+  const el = document.getElementById('body-'+id);
+  if (el) el.classList.toggle('expanded');
+}
+
+function toggleTodo(ev, id) {
+  ev.stopPropagation();
+  const e = entries.find(x=>x.id===id);
+  if (e) { e.done = !e.done; save(); renderContent(); }
+}
+
+function deleteEntry(ev, id) {
+  ev.stopPropagation();
+  entries = entries.filter(e=>e.id!==id);
+  save(); renderContent(); showToast('Entry deleted');
+}
+
+function jumpToQuarter(q) {
+  currentQuarter = q;
+  currentPeriodView = 'quarter';
+  document.querySelectorAll('.period-tab').forEach((el,i)=>el.classList.toggle('active',i===1));
+  renderAll();
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  selectedType = 'note';
+  document.getElementById('modal-title').textContent = 'New entry';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-body').value = '';
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-body-label').textContent = 'Notes';
+  selectType('note');
+  populateAreaSelect();
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function openEditModal(ev, id) {
+  ev.stopPropagation();
+  editingId = id;
+  const e = entries.find(x=>x.id===id);
+  if (!e) return;
+  selectedType = e.type;
+  document.getElementById('modal-title').textContent = 'Edit entry';
+  document.getElementById('f-title').value = e.title;
+  document.getElementById('f-body').value = e.body || '';
+  document.getElementById('f-date').value = e.date;
+  selectType(e.type);
+  populateAreaSelect(e.area);
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function populateAreaSelect(selected) {
+  const sel = document.getElementById('f-area');
+  sel.innerHTML = AREAS.map(a=>`<option value="${a.id}" ${a.id===(selected||'career')?'selected':''}>${a.icon} ${a.name}</option>`).join('');
+}
+
+function selectType(t) {
+  selectedType = t;
+  document.getElementById('type-note').classList.toggle('selected', t==='note');
+  document.getElementById('type-todo').classList.toggle('selected', t==='todo');
+  document.getElementById('f-body-label').textContent = t==='todo' ? 'Details (optional)' : 'Notes';
+}
+
+function saveEntry() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('Please add a title'); return; }
+  const area = document.getElementById('f-area').value;
+  const body = document.getElementById('f-body').value.trim();
+  const date = document.getElementById('f-date').value || new Date().toISOString().split('T')[0];
+  if (editingId) {
+    const e = entries.find(x=>x.id===editingId);
+    Object.assign(e, {title, area, body, date, type:selectedType});
+  } else {
+    entries.push({id: Date.now()+'-'+Math.random().toString(36).slice(2), title, area, body, date, type:selectedType, done:false});
+  }
+  save(); closeAllModals(); renderAll(); showToast(editingId?'Entry updated':'Entry saved ✦');
+}
+
+function closeModal(ev) { if (ev.target===document.getElementById('modal-overlay')) closeAllModals(); }
+function closeAllModals() { document.getElementById('modal-overlay').classList.add('hidden'); }
+
+// ─── CSV ──────────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const header = ['id','title','area','type','date','done','body'];
+  const rows = entries.map(e => header.map(k => {
+    const v = String(e[k]||'').replace(/"/g,'""');
+    return `"${v}"`;
+  }).join(','));
+  const csv = [header.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `life-tracker-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('CSV exported!');
+}
+
+function importCSV(ev) {
+  const file = ev.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    if (lines.length < 2) { showToast('No data found in CSV'); return; }
+    const header = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+    let imported = 0;
+    lines.slice(1).forEach(line => {
+      const vals = parseCSVLine(line);
+      const obj = {};
+      header.forEach((h,i) => obj[h] = (vals[i]||'').replace(/^"|"$/g,''));
+      if (obj.title && obj.date) {
+        const existing = entries.find(x=>x.id===obj.id);
+        if (!existing) {
+          entries.push({
+            id: obj.id || Date.now()+'-'+Math.random().toString(36).slice(2),
+            title: obj.title, area: obj.area||'mindset',
+            type: obj.type||'note', date: obj.date,
+            done: obj.done==='true', body: obj.body||''
+          });
+          imported++;
+        }
+      }
+    });
+    save(); renderAll(); showToast(`${imported} entries imported`);
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+function parseCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i]==='"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; }
+    else if (line[i]===',' && !inQ) { result.push(cur); cur=''; }
+    else cur += line[i];
+  }
+  result.push(cur); return result;
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+// Seed sample data if empty
+if (!entries.length) {
+  const today = new Date();
+  const fmt = (d) => d.toISOString().split('T')[0];
+  const ago = (n) => { const d = new Date(today); d.setDate(d.getDate()-n); return fmt(d); };
+  entries = [
+    {id:'s1', title:'Started morning run routine', area:'health', type:'note', date:ago(2), done:false, body:'3km today, felt good. Want to build up to 5km by end of month.'},
+    {id:'s2', title:'Update portfolio website', area:'career', type:'todo', date:ago(1), done:false, body:'Add 3 recent projects, refresh bio section, improve mobile layout.'},
+    {id:'s3', title:'Read Atomic Habits — notes', area:'learning', type:'note', date:ago(5), done:false, body:'Key insight: 1% better every day. Systems over goals. Habit stacking is powerful.'},
+    {id:'s4', title:'Track monthly expenses', area:'finance', type:'todo', date:fmt(today), done:true, body:'Review subscriptions, identify what can be cut.'},
+    {id:'s5', title:'Call mum and plan family dinner', area:'relations', type:'todo', date:ago(3), done:false, body:''},
+    {id:'s6', title:'Weekly reflection — feeling clearer', area:'mindset', type:'note', date:ago(7), done:false, body:'This week I\'ve been more intentional about how I spend my mornings. Less phone, more journaling. Noticing I start the day with more focus.'},
+  ];
+  save();
+}
+
+renderAll();
+</script>
+</body>
+</html>
